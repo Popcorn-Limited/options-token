@@ -11,10 +11,13 @@ import {IERC20Mintable} from "./interfaces/IERC20Mintable.sol";
 
 /// @title Options Token
 /// @author zefram.eth
+/// @author ruhum
 /// @notice Options token representing the right to purchase the underlying token
 /// at an oracle-specified rate. Similar to call options but with a variable strike
 /// price that's always at a certain discount to the market price.
 /// @dev Assumes the underlying token and the payment token both use 18 decimals.
+/// @dev Popcorn fork: instead of minting new underlying tokens, we transfer them
+/// from this contract. POP is already fully minted.
 contract OptionsToken is ERC20, Owned, IERC20Mintable {
     /// -----------------------------------------------------------------------
     /// Library usage
@@ -186,8 +189,9 @@ contract OptionsToken is ERC20, Owned, IERC20Mintable {
         if (paymentAmount > maxPaymentAmount) revert OptionsToken__SlippageTooHigh();
         paymentToken.safeTransferFrom(msg.sender, treasury, paymentAmount);
 
-        // mint underlying tokens to recipient
-        underlyingToken.mint(recipient, amount);
+        // transfer underlying tokens to recipient.
+        // Will revert if this contract doesn't have enough tokens
+        underlyingToken.transfer(recipient, amount);
 
         emit Exercise(msg.sender, recipient, amount, paymentAmount);
     }
