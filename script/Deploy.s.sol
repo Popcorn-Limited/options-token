@@ -12,9 +12,8 @@ contract DeployScript is CREATE3Script {
     constructor() CREATE3Script(vm.envString("VERSION")) {}
 
     function run() public returns (OptionsToken optionsToken, BalancerOracle oracle) {
-        uint256 deployerPrivateKey = uint256(vm.envBytes32("PRIVATE_KEY"));
-
-        vm.startBroadcast(deployerPrivateKey);
+        address admin = vm.envAddress("OWNER");
+        vm.startBroadcast(admin);
 
         {
             IBalancerTwapOracle balancerPriceOracle = IBalancerTwapOracle(vm.envAddress("BALANCER_POOL"));

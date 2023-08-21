@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0
 pragma solidity ^0.8.13;
 
-import {CREATE3Factory} from "create3-factory/CREATE3Factory.sol";
+import {CREATE3Factory} from "create3-factory/src/CREATE3Factory.sol";
 
 import "forge-std/Script.sol";
 
@@ -15,8 +15,7 @@ abstract contract CREATE3Script is Script {
     }
 
     function getCreate3Contract(string memory name) internal view virtual returns (address) {
-        uint256 deployerPrivateKey = uint256(vm.envBytes32("PRIVATE_KEY"));
-        address deployer = vm.addr(deployerPrivateKey);
+        address deployer = vm.envAddress("OWNER");
 
         return create3.getDeployed(deployer, getCreate3ContractSalt(name));
     }
