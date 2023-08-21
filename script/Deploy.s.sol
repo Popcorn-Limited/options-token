@@ -6,7 +6,6 @@ import {ERC20} from "solmate/tokens/ERC20.sol";
 import {OptionsToken} from "../src/OptionsToken.sol";
 import {CREATE3Script} from "./base/CREATE3Script.sol";
 import {BalancerOracle} from "../src/oracles/BalancerOracle.sol";
-import {IERC20Mintable} from "../src/interfaces/IERC20Mintable.sol";
 import {IBalancerTwapOracle} from "../src/interfaces/IBalancerTwapOracle.sol";
 
 contract DeployScript is CREATE3Script {
@@ -42,7 +41,7 @@ contract DeployScript is CREATE3Script {
             address owner = vm.envAddress("OWNER");
             address tokenAdmin = getCreate3Contract("TokenAdmin");
             ERC20 paymentToken = ERC20(vm.envAddress("OT_PAYMENT_TOKEN"));
-            IERC20Mintable underlyingToken = IERC20Mintable(getCreate3Contract("TimelessToken"));
+            ERC20 underlyingToken = ERC20(vm.envAddress("POPCORN_TOKEN"));
             address treasury = vm.envAddress("TREASURY");
             bytes memory constructorParams =
                 abi.encode(name, symbol, owner, tokenAdmin, paymentToken, underlyingToken, oracle, treasury);

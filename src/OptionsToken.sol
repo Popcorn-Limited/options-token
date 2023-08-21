@@ -53,7 +53,7 @@ contract OptionsToken is ERC20, Owned, IERC20Mintable {
     ERC20 public immutable paymentToken;
 
     /// @notice The underlying token purchased during redemption
-    IERC20Mintable public immutable underlyingToken;
+    ERC20 public immutable underlyingToken;
 
     /// -----------------------------------------------------------------------
     /// Storage variables
@@ -76,7 +76,7 @@ contract OptionsToken is ERC20, Owned, IERC20Mintable {
         address owner_,
         address tokenAdmin_,
         ERC20 paymentToken_,
-        IERC20Mintable underlyingToken_,
+        ERC20 underlyingToken_,
         IOracle oracle_,
         address treasury_
     ) ERC20(name_, symbol_, 18) Owned(owner_) {

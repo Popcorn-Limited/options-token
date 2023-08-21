@@ -4,11 +4,11 @@ pragma solidity ^0.8.13;
 import "forge-std/Test.sol";
 
 import {FixedPointMathLib} from "solmate/utils/FixedPointMathLib.sol";
+import {ERC20} from "solmate/tokens/ERC20.sol";
 
 import {OptionsToken} from "../src/OptionsToken.sol";
 import {TestERC20Mintable} from "./mocks/TestERC20Mintable.sol";
 import {BalancerOracle} from "../src/oracles/BalancerOracle.sol";
-import {IERC20Mintable} from "../src/interfaces/IERC20Mintable.sol";
 import {MockBalancerTwapOracle} from "./mocks/MockBalancerTwapOracle.sol";
 
 contract OptionsTokenTest is Test {
@@ -31,7 +31,7 @@ contract OptionsTokenTest is Test {
     BalancerOracle oracle;
     MockBalancerTwapOracle balancerTwapOracle;
     TestERC20Mintable paymentToken;
-    IERC20Mintable underlyingToken;
+    ERC20 underlyingToken;
 
     function setUp() public {
         // set up accounts
@@ -44,7 +44,7 @@ contract OptionsTokenTest is Test {
         oracle =
             new BalancerOracle(balancerTwapOracle, owner, ORACLE_MULTIPLIER, ORACLE_SECS, ORACLE_AGO, ORACLE_MIN_PRICE);
         paymentToken = new TestERC20Mintable();
-        underlyingToken = IERC20Mintable(address(new TestERC20Mintable()));
+        underlyingToken = ERC20(address(new TestERC20Mintable()));
         optionsToken =
         new OptionsToken("TIT Call Option Token", "oTIT", owner, tokenAdmin, paymentToken, underlyingToken, oracle, treasury);
 
