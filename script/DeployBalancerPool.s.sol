@@ -1,6 +1,6 @@
 pragma solidity ^0.8.0;
 
-import {POP} from "../src/ERC20.sol";
+import {TestToken} from "../src/ERC20.sol";
 
 import "forge-std/Script.sol";
 
