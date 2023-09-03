@@ -44,6 +44,8 @@ contract BalancerOracle is IOracle, Owned {
     /// @notice The denominator for converting the multiplier into a decimal number.
     /// i.e. multiplier uses 4 decimals.
     uint256 internal constant MULTIPLIER_DENOM = 10000;
+    // keccak256(abi.encodePacked("BAL#313"))
+    bytes32 internal constant ORACLE_NOT_INITIALIZED_ERROR = 0x4c60f3e159edfac6fe0f71d6dacd55beccc3b6d9632b5d259c4cbedb84e13d32;
 
     /// -----------------------------------------------------------------------
     /// Immutable parameters
@@ -129,7 +131,25 @@ contract BalancerOracle is IOracle, Owned {
                 secs: secs_,
                 ago: ago_
             });
-            price = balancerTwapOracle.getTimeWeightedAverage(queries)[0];
+            bytes memory query = abi.encodeWithSelector(0x1dccd830, queries);
+            
+            (bool success, bytes memory result) = address(balancerTwapOracle).staticcall(query);
+            if (!success) {
+                // If the _res length is less than 68, then the transaction failed silently (without a revert message)
+                if (result.length < 68) revert("oracle failed");
+
+                assembly {
+                    // Slice the sighash.
+                    result := add(result, 0x04)
+                }
+
+                // if oracle wasn't initialized we just use the min price (BAL#313 == ORACLE_NOT_INITIALIZED)
+                if (ORACLE_NOT_INITIALIZED_ERROR == keccak256(abi.encodePacked(abi.decode(result, (string))))) {
+                    return minPrice;
+                }
+                revert("ORACLE_FAILED");
+            }
+            price = abi.decode(result, (uint[]))[0];
         }
 
         // apply multiplier to price

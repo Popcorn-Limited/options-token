@@ -5,9 +5,14 @@ import {IBalancerTwapOracle} from "../../src/interfaces/IBalancerTwapOracle.sol"
 
 contract MockBalancerTwapOracle is IBalancerTwapOracle {
     uint256 twapValue;
+    bool shouldRevert;
 
     function setTwapValue(uint256 value) external {
         twapValue = value;
+    }
+
+    function setShouldRevert(bool value) external {
+        shouldRevert = value;
     }
 
     function getTimeWeightedAverage(IBalancerTwapOracle.OracleAverageQuery[] memory queries)
@@ -16,6 +21,7 @@ contract MockBalancerTwapOracle is IBalancerTwapOracle {
         override
         returns (uint256[] memory results)
     {
+        require(!shouldRevert, "BAL#313");
         queries;
         results = new uint256[](1);
         results[0] = twapValue;
