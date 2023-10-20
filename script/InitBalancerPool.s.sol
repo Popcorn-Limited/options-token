@@ -6,8 +6,7 @@ import {IVault, IAsset, JoinPoolRequest, IERC20} from "../src/interfaces/IVault.
 
 contract InitBalancerPool is Script {
     function run() public {
-        uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
-        address admin = vm.addr(deployerPrivateKey);
+        address admin = vm.envAddress("OWNER");
 
         address pop = vm.envAddress("POPCORN_TOKEN");
         address weth = vm.envAddress("WETH");
@@ -17,14 +16,17 @@ contract InitBalancerPool is Script {
         assets[0] = IAsset(weth);
         assets[1] = IAsset(pop);
 
+        uint256 wethAmount = 17387463607634310; // Adjust this based on token price and how many lpToken you want to receive
+        uint256 popAmount = 1000000000000000000000; // Adjust this based on token price and how many lpToken you want to receive
+
         uint256[] memory maxAmountsIn = new uint256[](2);
-        maxAmountsIn[0] = 17387463607634310;
-        maxAmountsIn[1] = 1000000000000000000000;
+        maxAmountsIn[0] = wethAmount;
+        maxAmountsIn[1] = popAmount;
 
-        vm.startBroadcast(deployerPrivateKey);
+        vm.startBroadcast(admin);
 
-        IERC20(weth).approve(address(vault), 17387463607634310);
-        IERC20(pop).approve(address(vault), 1000000000000000000000);
+        IERC20(weth).approve(address(vault), wethAmount);
+        IERC20(pop).approve(address(vault), popAmount);
 
         vault.joinPool(
             bytes32(
@@ -35,7 +37,7 @@ contract InitBalancerPool is Script {
             JoinPoolRequest({
                 assets: assets,
                 maxAmountsIn: maxAmountsIn,
-                userData: abi.encode(0, maxAmountsIn),
+                userData: abi.encode(0, maxAmountsIn), // first param is the enum for initializing a pool
                 fromInternalBalance: false
             })
         );
