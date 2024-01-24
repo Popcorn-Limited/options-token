@@ -12,14 +12,14 @@ contract DeployERC20Script is CREATE3Script {
         address admin = vm.envAddress("OWNER");
         vm.startBroadcast(admin);
 
-        address weth = create3.deploy(
+        address weth = createx.deployCreate3(
             getCreate3ContractSalt("WETH"),
             bytes.concat(
                 type(TestToken).creationCode,
                 abi.encode("WETH Test Token", "WETH")
             )
         );
-        address pop = create3.deploy(
+        address pop = createx.deployCreate3(
             getCreate3ContractSalt("POP"),
             bytes.concat(
                 type(TestToken).creationCode,
