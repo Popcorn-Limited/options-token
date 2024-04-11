@@ -34,7 +34,8 @@ contract DeployScript is CREATE3Script {
                     ERC20(vm.envAddress("EXERCISE_TOKEN")),
                     ERC20(vm.envAddress("PAYMENT_TOKEN")),
                     ERC20(vm.envAddress("UNDERLYING_TOKEN")),
-                    oracle
+                    oracle,
+                    vm.envAddress("TREASURY")
                 )
             )
         );

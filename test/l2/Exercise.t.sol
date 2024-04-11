@@ -16,6 +16,7 @@ contract ExerciseTest is Test {
     uint constant MAX_SUPPLY = 1e27; // the max supply of the options token & the underlying token
 
     address owner = makeAddr("owner");
+    address treasury = makeAddr("treasury");
 
     MockERC20 exerciseToken;
     MockERC20 underlyingToken;
@@ -37,7 +38,8 @@ contract ExerciseTest is Test {
             ERC20(address(exerciseToken)),
             ERC20(address(paymentToken)),
             ERC20(address(underlyingToken)),
-            IOracle(address(oracle))
+            IOracle(address(oracle)),
+            treasury
         );
         vm.label(address(exercise), "Exercise");
 
@@ -59,40 +61,12 @@ contract ExerciseTest is Test {
 
         assertEq(paymentToken.balanceOf(address(this)), 0, "user still holds payment tokens");
         assertEq(expectedPaymentAmount, paymentAmount, "payment amount doesn't match");
-        assertEq(paymentToken.balanceOf(address(exercise)), paymentAmount, "exercise contract didn't receive payment amonut");
+        assertEq(paymentToken.balanceOf(treasury), paymentAmount, "treasury didn't receive payment token");
         assertEq(exerciseToken.balanceOf(address(this)), 0, "user still holds exercise tokens");
         assertEq(exerciseToken.balanceOf(address(0)), amount, "exercise token wasn't transferred to 0 address");
         assertEq(underlyingToken.balanceOf(recipient), amount, "recipient didn't get underlying token");
     }
 
-    function test_canPayWithEth(uint amount, address recipient) public {
-        amount = bound(amount, 1e6, MAX_SUPPLY);
-        exerciseToken.mint(address(this), amount);
-        uint expectedPaymentAmount = amount.mulWadUp(5e17);
-        deal(address(this), expectedPaymentAmount);
-        uint paymentAmount = exercise.exercise{value: expectedPaymentAmount}(amount, type(uint).max, recipient);
-
-        assertEq(address(this).balance, 0, "user still holds payment tokens");
-        assertEq(expectedPaymentAmount, paymentAmount, "payment amount doesn't match");
-        assertEq(address(exercise).balance, paymentAmount, "exercise contract didn't receive payment amonut");
-        assertEq(exerciseToken.balanceOf(address(this)), 0, "user still holds exercise tokens");
-        assertEq(exerciseToken.balanceOf(address(0)), amount, "exercise token wasn't transferred to 0 address");
-        assertEq(underlyingToken.balanceOf(recipient), amount, "recipient didn't get underlying token");
-    }
-
-    function test_withdrawPayments() public {
-        paymentToken.mint(address(exercise), 10e18);
-        deal(address(exercise), 10e18);
-
-        vm.prank(owner);
-        exercise.withdrawPayments();
-
-        assertEq(paymentToken.balanceOf(owner), 10e18, "owner didn't receive funds");
-        assertEq(paymentToken.balanceOf(address(exercise)), 0, "exercise contract still holds payment tokens");
-        assertEq(owner.balance, 10e18, "owner didn't receive native tokens");
-        assertEq(address(exercise).balance, 0, "exercise contract still holds native tokens");
-    }
-    
     function test_ownerCanUpdateOracle() public {
         address newOracle = makeAddr("oracle2");
 
@@ -107,5 +81,21 @@ contract ExerciseTest is Test {
 
         vm.expectRevert("UNAUTHORIZED");
         exercise.setOracle(IOracle(newOracle));
+    }
+
+    function test_ownerCanUpdateTreasury() public {
+        address newTreasury = makeAddr("treasury2");
+
+        vm.prank(owner);
+        exercise.setTreasury(newTreasury);
+
+        assertEq(address(exercise.treasury()), newTreasury, "oracle wasn't updated");
+    }
+
+    function test_onlyOwnerCanUpdateTreasury() public {
+        address newTreasury = makeAddr("treasuryw");
+
+        vm.expectRevert("UNAUTHORIZED");
+        exercise.setTreasury(newTreasury);
     }
 }

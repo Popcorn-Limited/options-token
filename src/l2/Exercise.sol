@@ -25,28 +25,34 @@ contract Exercise is Owned {
     /// the underlying token while exercising options (the strike price)
     IOracle public oracle;
 
-    event Exercise(address indexed sender, address indexed recipient, uint256 amount, uint256 paymentAmount);
+    /// @notice The address that receives the payment token
+    address public treasury;
+
+    event Exercised(address indexed sender, address indexed recipient, uint256 amount, uint256 paymentAmount);
     event OracleUpdated(address oldOracle, address newOracle);
+    event TreasuryUpdated(address oldTreasury, address newTreasury);
 
     constructor(
         address _owner,
         ERC20 _exerciseToken,
         ERC20 _paymentToken,
         ERC20 _underlyingToken,
-        IOracle _oracle
+        IOracle _oracle,
+        address _treasury
     ) Owned(_owner) {
         exerciseToken = _exerciseToken;
         paymentToken = _paymentToken;
         underlyingToken = _underlyingToken;
         oracle = _oracle;
+        treasury = _treasury;
 
         emit OracleUpdated(address(0), address(_oracle));
+        emit TreasuryUpdated(address(0), _treasury);
     }
 
     /// @notice user has to approve `amount` of `exerciseToken` to the contract before calling
     function exercise(uint amount, uint maxPaymentAmount, address recipient)
         external
-        payable
         returns (uint paymentAmount)
     {
         require(amount != 0, "can't exercise 0 tokens");
@@ -59,32 +65,21 @@ contract Exercise is Owned {
         paymentAmount = amount.mulWadUp(oracle.getPrice());
         require(paymentAmount <= maxPaymentAmount, "slippage too high");
 
-        if (msg.value != 0) {
-            require(msg.value == paymentAmount, "not enough ETH");
-        } else {
-            paymentToken.safeTransferFrom(msg.sender, address(this), paymentAmount);
-        }
+        paymentToken.safeTransferFrom(msg.sender, treasury, paymentAmount);
 
         underlyingToken.transfer(recipient, amount);
 
-        emit Exercise(msg.sender, recipient, amount, paymentAmount);
+        emit Exercised(msg.sender, recipient, amount, paymentAmount);
     }
-
-    function withdrawPayments() external onlyOwner {
-        if (address(this).balance != 0) {
-            (bool success, ) = msg.sender.call{value: address(this).balance}("");
-            require(success);
-        }
-
-        uint paymentTokenBal = paymentToken.balanceOf(address(this));
-        if (paymentTokenBal != 0) {
-            paymentToken.safeTransfer(msg.sender, paymentTokenBal);
-        }
-    }
-
     function setOracle(IOracle newOracle) external onlyOwner {
         emit OracleUpdated(address(oracle), address(newOracle));
 
         oracle = newOracle;
+    }
+
+    function setTreasury(address newTreasury) external onlyOwner {
+        emit TreasuryUpdated(treasury, newTreasury);
+    
+        treasury = newTreasury;
     }
 }
