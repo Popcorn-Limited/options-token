@@ -24,7 +24,7 @@ contract DeployScript is CREATE3Script {
             uint128 minPrice = uint128(vm.envUint("ORACLE_MIN_PRICE"));
 
             oracle = BalancerOracle(
-                create3.deploy(
+                createx.deployCreate3(
                     getCreate3ContractSalt("BalancerOracle"),
                     bytes.concat(
                         type(BalancerOracle).creationCode,
@@ -46,7 +46,7 @@ contract DeployScript is CREATE3Script {
                 abi.encode(name, symbol, owner, tokenAdmin, paymentToken, underlyingToken, oracle, treasury);
 
             optionsToken = OptionsToken(
-                create3.deploy(
+                createx.deployCreate3(
                     getCreate3ContractSalt("OptionsToken"),
                     bytes.concat(type(OptionsToken).creationCode, constructorParams)
                 )
