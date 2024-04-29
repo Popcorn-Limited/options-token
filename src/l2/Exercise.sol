@@ -57,7 +57,7 @@ contract Exercise is Owned {
     {
         require(amount != 0, "can't exercise 0 tokens");
 
-        exerciseToken.safeTransferFrom(msg.sender, address(0), amount);
+        exerciseToken.safeTransferFrom(msg.sender, address(this), amount);
         
         // get price from oracle.
         // multiply by oVCX amount (check how OptionssToken handles that) to get the

@@ -14,16 +14,13 @@ contract DeployScript is CREATE3Script {
 
     function run() public returns (address oracle, address exercise) {
         uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
-        vm.startBroadcast(deployerPrivateKey);
+        address admin = vm.addr(deployerPrivateKey);
 
-        address admin = vm.envAddress("ADMIN");
+        vm.startBroadcast(deployerPrivateKey);
 
         oracle = createx.deployCreate3(
             getCreate3ContractSalt("PushOracle"),
-            bytes.concat(
-                type(PushOracle).creationCode,
-                abi.encode(admin)
-            )
+            bytes.concat(type(PushOracle).creationCode, abi.encode(admin))
         );
         exercise = createx.deployCreate3(
             getCreate3ContractSalt("Exercise"),

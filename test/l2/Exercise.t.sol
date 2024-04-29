@@ -63,7 +63,7 @@ contract ExerciseTest is Test {
         assertEq(expectedPaymentAmount, paymentAmount, "payment amount doesn't match");
         assertEq(paymentToken.balanceOf(treasury), paymentAmount, "treasury didn't receive payment token");
         assertEq(exerciseToken.balanceOf(address(this)), 0, "user still holds exercise tokens");
-        assertEq(exerciseToken.balanceOf(address(0)), amount, "exercise token wasn't transferred to 0 address");
+        assertEq(exerciseToken.balanceOf(address(exercise)), amount, "exercise token wasn't transferred to 0 address");
         assertEq(underlyingToken.balanceOf(recipient), amount, "recipient didn't get underlying token");
     }
 
