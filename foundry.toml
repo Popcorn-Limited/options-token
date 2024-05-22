@@ -12,10 +12,14 @@ verbosity = 4
 goerli = "${RPC_URL_GOERLI}"
 mainnet = "${RPC_URL_MAINNET}"
 arbitrum = "${RPC_URL_ARBITRUM}"
-optimism = "${RPC_URL=OPTIMISM}"
+optimism = "${RPC_URL_OPTIMISM}"
+sepolia = "${RPC_URL_SEPOLIA}"
+polygon = "${RPC_URL_POLYGON}"
 
 [etherscan]
 goerli = {key = "${ETHERSCAN_KEY}", url = "https://api-goerli.etherscan.io/api?"}
 mainnet = {key = "${ETHERSCAN_KEY}"}
 arbitrum = {key = "${ARBISCAN_KEY}"}
-optimism = {key = "${OPTIMISMSCAN_KEY}"}
+optimism = {key = "${OPTIMISM_SCAN_KEY}"}
+sepolia = {key = "${SEPOLIA_SCAN_KEY}"}
+polygon = {key = "${POLYGON_SCAN_KEY}"}
